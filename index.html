@@ -1,932 +1,564 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Seguimiento - M.Q.V 19+</title>
-    <!-- ELIMINADO EL CDN: <script src="https://cdn.tailwindcss.com"></script> -->
-    <!-- EN SU LUGAR, ENLAZA EL ARCHIVO CSS COMPILADO POR TAILWIND -->
-    <link href="./dist/output.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* bg-gray-100 */
-        }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
-        }
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-        body.modal-active {
-            overflow-x: hidden;
-            overflow-y: hidden !important;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Seguimiento - M.Q.V 19+</title>
+<link href="./dist/output.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+body{font-family:'Inter',sans-serif;background:#f3f4f6}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#f1f1f1}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+.modal{transition:opacity .25s ease}
+body.modal-active{overflow:hidden!important}
+.ring-bg{stroke:#e5e7eb}
+.donut-arc{transition:stroke-dasharray .8s ease}
+.bar-fill{transition:width .8s ease}
+</style>
 </head>
 <body class="text-gray-800 antialiased h-screen flex overflow-hidden">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-slate-800 text-white flex flex-col shadow-lg">
-        <div class="p-6 flex items-center justify-center border-b border-slate-700">
-            <i class="fa-solid fa-chart-line text-2xl mr-3 text-orange-400"></i>
-            <h1 class="text-xl font-bold tracking-wider uppercase">M.Q.V 19+</h1>
-        </div>
-        
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center px-4 py-3 bg-slate-700 text-orange-400 rounded-lg transition-colors group">
-                <i class="fa-solid fa-table w-6 text-center mr-2"></i>
-                <span class="font-medium">Plan Programático</span>
-            </button>
-            
-            <button onclick="switchTab('participants')" id="btn-tab-participants" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors group">
-                <i class="fa-solid fa-users w-6 text-center mr-2"></i>
-                <span class="font-medium">Participantes</span>
-            </button>
+<aside class="w-64 bg-slate-800 text-white flex flex-col shadow-lg">
+  <div class="p-6 flex items-center justify-center border-b border-slate-700">
+    <i class="fa-solid fa-chart-line text-2xl mr-3 text-orange-400"></i>
+    <h1 class="text-xl font-bold tracking-wider uppercase">M.Q.V 19+</h1>
+  </div>
+  <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center px-4 py-3 bg-slate-700 text-orange-400 rounded-lg transition-colors"><i class="fa-solid fa-table w-6 text-center mr-2"></i><span class="font-medium">Plan Programático</span></button>
+    <button onclick="switchTab('participants')" id="btn-tab-participants" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors"><i class="fa-solid fa-users w-6 text-center mr-2"></i><span class="font-medium">Participantes</span></button>
+    <button onclick="switchTab('attendance')" id="btn-tab-attendance" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors"><i class="fa-solid fa-clipboard-user w-6 text-center mr-2"></i><span class="font-medium">Asistencia</span></button>
+    <button onclick="switchTab('reports')" id="btn-tab-reports" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors"><i class="fa-solid fa-chart-pie w-6 text-center mr-2"></i><span class="font-medium">Resumen</span></button>
+  </nav>
+  <div class="p-4 border-t border-slate-700 text-sm text-slate-400 text-center">&copy; 2026 Panel v1.1</div>
+</aside>
 
-            <button onclick="switchTab('attendance')" id="btn-tab-attendance" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors group">
-                <i class="fa-solid fa-clipboard-user w-6 text-center mr-2"></i>
-                <span class="font-medium">Asistencia</span>
-            </button>
-
-            <button onclick="switchTab('reports')" id="btn-tab-reports" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-slate-700 hover:text-white rounded-lg transition-colors group">
-                <i class="fa-solid fa-chart-pie w-6 text-center mr-2"></i>
-                <span class="font-medium">Resumen</span>
-            </button>
-        </nav>
-        
-        <div class="p-4 border-t border-slate-700 text-sm text-slate-400 text-center">
-            &copy; 2026 Panel v1.0
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden bg-gray-50 relative">
-        
-        <!-- Header -->
-        <header class="bg-white shadow-sm z-10 py-4 px-6 flex justify-between items-center">
-            <h2 id="page-title" class="text-2xl font-semibold text-gray-800">Plan Programático</h2>
-            <div class="flex items-center space-x-4">
-                <span class="text-sm text-gray-500"><i class="fa-solid fa-calendar mr-2"></i><span id="current-date"></span></span>
-                <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold border border-orange-200">
-                    AD
-                </div>
-            </div>
-        </header>
-
-        <!-- Content Body -->
-        <div class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-            
-            <!-- TAB: Plan Programático -->
-            <section id="tab-dashboard" class="block animate-fade-in">
-                
-                <div class="mb-6 flex justify-between items-center flex-wrap gap-4">
-                    <p class="text-gray-600 max-w-3xl">Esta tabla muestra los programas, resultados e intervenciones para el seguimiento de participantes.</p>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-white uppercase bg-slate-700">
-                                <tr>
-                                    <th scope="col" class="px-6 py-4 font-semibold border-r border-slate-600 w-1/6">Programa</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold border-r border-slate-600 w-1/4">Resultado</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold border-r border-slate-600 w-1/3">Indicador de Salida</th>
-                                    <th scope="col" class="px-6 py-4 font-semibold border-r border-slate-600 text-center">Intervenciones</th>
-                                    <th scope="col" class="px-3 py-4 font-semibold text-center w-16">2026</th>
-                                    <th scope="col" class="px-3 py-4 font-semibold text-center w-16">2027</th>
-                                    <th scope="col" class="px-3 py-4 font-semibold text-center w-16">2028</th>
-                                </tr>
-                            </thead>
-                            <tbody id="plan-table-body">
-                                <!-- Data rendered by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Info cards below table -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-5 flex items-center shadow-sm">
-                        <div class="rounded-full bg-blue-100 p-3 mr-4 text-blue-600"><i class="fa-solid fa-cross text-xl"></i></div>
-                        <div><p class="text-sm text-gray-500 font-medium">Programa 1</p><p class="text-lg font-bold text-gray-800">Crecimiento en Cristo</p></div>
-                    </div>
-                    <div class="bg-green-50 border border-green-100 rounded-lg p-5 flex items-center shadow-sm">
-                        <div class="rounded-full bg-green-100 p-3 mr-4 text-green-600"><i class="fa-solid fa-shield-halved text-xl"></i></div>
-                        <div><p class="text-sm text-gray-500 font-medium">Programa 2</p><p class="text-lg font-bold text-gray-800">Protección Infantil</p></div>
-                    </div>
-                    <div class="bg-rose-50 border border-rose-100 rounded-lg p-5 flex items-center shadow-sm">
-                        <div class="rounded-full bg-rose-100 p-3 mr-4 text-rose-600"><i class="fa-solid fa-heart-pulse text-xl"></i></div>
-                        <div><p class="text-sm text-gray-500 font-medium">Programa 3</p><p class="text-lg font-bold text-gray-800">Salud Sexual / Repro.</p></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- TAB: Participantes -->
-            <section id="tab-participants" class="hidden animate-fade-in">
-                
-                <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Gestión y Seguimiento de Participantes</h3>
-                        <p class="text-sm text-gray-500">Registre la participación, necesidades y debilidades según la intervención.</p>
-                    </div>
-                    <button onclick="openModal('add')" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors flex items-center">
-                        <i class="fa-solid fa-plus mr-2"></i> Nuevo Registro
-                    </button>
-                </div>
-
-                <!-- Filters -->
-                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Buscar Participante</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fa-solid fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="search-input" placeholder="Nombre..." class="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent text-sm">
-                        </div>
-                    </div>
-                    <div class="flex-1 min-w-[250px]">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Filtrar por Intervención</label>
-                        <select id="filter-intervencion" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm">
-                            <option value="all">Todas las intervenciones</option>
-                            <!-- Options generated by JS -->
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Participants List/Cards -->
-                <div id="participants-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                    <!-- Participant Cards rendered by JS -->
-                </div>
-                
-                <!-- Empty State -->
-                <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
-                    <div class="text-gray-300 mb-4">
-                        <i class="fa-solid fa-users-slash text-6xl"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-1">No hay participantes registrados</h3>
-                    <p class="text-gray-500 mb-4">Comienza agregando un participante para hacer su seguimiento.</p>
-                    <button onclick="openModal('add')" class="text-orange-500 hover:text-orange-700 font-medium">
-                        + Agregar Participante
-                    </button>
-                </div>
-            </section>
-
-            <!-- TAB: Asistencia -->
-            <section id="tab-attendance" class="hidden animate-fade-in">
-                <div class="mb-6 flex justify-between items-center">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">Control de Asistencia</h3>
-                        <p class="text-sm text-gray-500">Registre la hora de ingreso y salida de los participantes.</p>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-white uppercase bg-slate-700">
-                                <tr>
-                                    <th class="px-6 py-4 font-semibold w-24">Código</th>
-                                    <th class="px-6 py-4 font-semibold">Nombre Completo</th>
-                                    <th class="px-6 py-4 font-semibold text-center w-40">Hora Ingreso</th>
-                                    <th class="px-6 py-4 font-semibold text-center w-40">Hora Salida</th>
-                                    <th class="px-6 py-4 font-semibold text-center w-24">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="attendance-table-body">
-                                <!-- Rendered by JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-             <!-- TAB: Reportes -->
-             <section id="tab-reports" class="hidden animate-fade-in">
-                <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">Resumen de Seguimiento</h3>
-                    <p class="text-sm text-gray-500">Métricas basadas en los registros de participantes y programas resaltados.</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Participantes</p>
-                                <p class="text-3xl font-bold text-gray-800 mt-2" id="stat-total">0</p>
-                            </div>
-                            <div class="p-3 bg-blue-50 text-blue-500 rounded-full">
-                                <i class="fa-solid fa-users text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Más que Vencedores</p>
-                                <p class="text-3xl font-bold text-gray-800 mt-2" id="stat-vencedores">0</p>
-                            </div>
-                            <div class="p-3 bg-orange-50 text-orange-500 rounded-full">
-                                <i class="fa-solid fa-cross text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Abrigo del Mañana</p>
-                                <p class="text-3xl font-bold text-gray-800 mt-2" id="stat-abrigo">0</p>
-                            </div>
-                            <div class="p-3 bg-green-50 text-green-500 rounded-full">
-                                <i class="fa-solid fa-shield text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Un Pacto con Dios</p>
-                                <p class="text-3xl font-bold text-gray-800 mt-2" id="stat-pacto">0</p>
-                            </div>
-                            <div class="p-3 bg-rose-50 text-rose-500 rounded-full">
-                                <i class="fa-solid fa-heart text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Resultados de Indicadores por Programa</h4>
-                    <p class="text-xs text-gray-500 mb-4">Porcentaje de participantes que lograron el indicador esperado según el Plan Programático.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4" id="stats-charts">
-                        <!-- Rendered by JS -->
-                    </div>
-                </div>
-             </section>
-
-        </div>
-    </main>
-
-    <!-- Modal (Add/Edit Participant) -->
-    <div id="participant-modal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
-        
-        <!-- Modal Content -->
-        <div class="bg-white rounded-xl shadow-2xl z-50 w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
-            
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-slate-50">
-                <h3 class="text-xl font-bold text-gray-800" id="modal-title">Registrar Participante e Intervención</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none p-1">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <div class="p-6 overflow-y-auto">
-                <form id="participant-form" class="space-y-5">
-                    <input type="hidden" id="part-id">
-                    
-                    <!-- Basic Info -->
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide border-b pb-1 mb-3">Datos del Participante</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Código *</label>
-                                <input type="number" id="part-code" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo *</label>
-                                <input type="text" id="part-name" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Edad *</label>
-                                <input type="number" id="part-age" required min="0" max="99" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Program Selection -->
-                    <div>
-                        <h4 class="text-sm font-bold text-orange-600 uppercase tracking-wide border-b border-orange-100 pb-1 mb-3 mt-2">Selección de Intervención (Plan Programático)</h4>
-                        
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Programa -> Intervención *</label>
-                                <select id="part-intervencion" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-orange-50">
-                                    <option value="" disabled selected>Seleccione la intervención a aplicar...</option>
-                                    <!-- Options populated by JS based on highlighted data -->
-                                </select>
-                            </div>
-                            
-                            <!-- Readonly display of related data to ensure context -->
-                            <div class="bg-gray-50 p-3 rounded border border-gray-200 text-sm hidden" id="context-data-box">
-                                <p class="text-xs text-gray-500 uppercase font-semibold">Resultado Esperado:</p>
-                                <p id="context-resultado" class="text-gray-700 italic mb-2"></p>
-                                <p class="text-xs text-gray-500 uppercase font-semibold">Indicador de Salida Objetivo:</p>
-                                <p id="context-indicador" class="text-gray-700 font-medium"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Follow Up Data (Qualitative) -->
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide border-b pb-1 mb-3 mt-2">Seguimiento y Estado</h4>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Necesidad Personal Identificada *</label>
-                                <textarea id="part-necesidad" required rows="2" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="Ej. Necesita acompañamiento en su proceso de fe, apoyo emocional..."></textarea>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Debilidades / Áreas de Mejora *</label>
-                                <textarea id="part-debilidades" required rows="2" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="Ej. Falta de asistencia regular, dificultad para socializar..."></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Acción / Intervención Específica a realizar *</label>
-                                <p class="text-xs text-gray-500 mb-1">Detalle qué se hará específicamente con esta persona bajo este programa.</p>
-                                <textarea id="part-accion" required rows="2" class="w-full border border-orange-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Ej. Integrar a grupo pequeño los sábados, visita domiciliaria..."></textarea>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Nivel de Participación Actual</label>
-                                <div class="flex space-x-4 mt-1">
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" name="part-nivel" value="Bajo" class="text-orange-500 focus:ring-orange-400">
-                                        <span class="ml-2 text-sm">Bajo</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" name="part-nivel" value="Medio" class="text-orange-500 focus:ring-orange-400" checked>
-                                        <span class="ml-2 text-sm">Medio</span>
-                                    </label>
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" name="part-nivel" value="Alto" class="text-orange-500 focus:ring-orange-400">
-                                        <span class="ml-2 text-sm">Alto</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 p-3 border border-gray-200 rounded-lg mt-4">
-                                <label class="block text-sm font-bold text-gray-800 mb-2">¿Logró el Indicador de Salida esperado?</label>
-                                <div class="flex space-x-6 mt-1">
-                                    <label class="inline-flex items-center cursor-pointer">
-                                        <input type="radio" name="part-logrado" value="Si" class="text-green-500 focus:ring-green-400 w-4 h-4">
-                                        <span class="ml-2 text-sm font-medium text-green-700">Sí, obtenido</span>
-                                    </label>
-                                    <label class="inline-flex items-center cursor-pointer">
-                                        <input type="radio" name="part-logrado" value="No" class="text-red-500 focus:ring-red-400 w-4 h-4" checked>
-                                        <span class="ml-2 text-sm font-medium text-red-700">Aún no (En proceso)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors text-sm">
-                    Cancelar
-                </button>
-                <button type="button" onclick="saveParticipant()" class="px-4 py-2 bg-orange-500 rounded-lg text-white hover:bg-orange-600 font-medium transition-colors text-sm shadow-sm flex items-center">
-                    <i class="fa-solid fa-save mr-2"></i> Guardar Registro
-                </button>
-            </div>
-        </div>
+<main class="flex-1 flex flex-col overflow-hidden bg-gray-50 relative">
+  <header class="bg-white shadow-sm z-10 py-4 px-6 flex justify-between items-center">
+    <h2 id="page-title" class="text-2xl font-semibold text-gray-800">Plan Programático</h2>
+    <div class="flex items-center space-x-4">
+      <span class="text-sm text-gray-500"><i class="fa-solid fa-calendar mr-2"></i><span id="current-date"></span></span>
+      <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold border border-orange-200">AD</div>
     </div>
+  </header>
 
-    <!-- Custom Alert Notification -->
-    <div id="notification" class="fixed bottom-4 right-4 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center">
-        <i id="notif-icon" class="fa-solid fa-check-circle text-green-400 mr-3 text-xl"></i>
-        <span id="notif-msg" class="font-medium">Mensaje</span>
+  <div class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+
+    <!-- Plan -->
+    <section id="tab-dashboard" class="block">
+      <p class="mb-6 text-gray-600 max-w-3xl">Esta tabla muestra los programas, resultados e intervenciones para el seguimiento de participantes.</p>
+      <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-white uppercase bg-slate-700"><tr>
+              <th class="px-6 py-4 font-semibold border-r border-slate-600 w-1/6">Programa</th>
+              <th class="px-6 py-4 font-semibold border-r border-slate-600 w-1/4">Resultado</th>
+              <th class="px-6 py-4 font-semibold border-r border-slate-600 w-1/3">Indicador de Salida</th>
+              <th class="px-6 py-4 font-semibold border-r border-slate-600 text-center">Intervenciones</th>
+              <th class="px-3 py-4 font-semibold text-center w-16">2026</th>
+              <th class="px-3 py-4 font-semibold text-center w-16">2027</th>
+              <th class="px-3 py-4 font-semibold text-center w-16">2028</th>
+            </tr></thead>
+            <tbody id="plan-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div class="bg-blue-50 border border-blue-100 rounded-lg p-5 flex items-center shadow-sm"><div class="rounded-full bg-blue-100 p-3 mr-4 text-blue-600"><i class="fa-solid fa-cross text-xl"></i></div><div><p class="text-sm text-gray-500 font-medium">Programa 1</p><p class="text-lg font-bold text-gray-800">Crecimiento en Cristo</p></div></div>
+        <div class="bg-green-50 border border-green-100 rounded-lg p-5 flex items-center shadow-sm"><div class="rounded-full bg-green-100 p-3 mr-4 text-green-600"><i class="fa-solid fa-shield-halved text-xl"></i></div><div><p class="text-sm text-gray-500 font-medium">Programa 2</p><p class="text-lg font-bold text-gray-800">Protección Infantil</p></div></div>
+        <div class="bg-rose-50 border border-rose-100 rounded-lg p-5 flex items-center shadow-sm"><div class="rounded-full bg-rose-100 p-3 mr-4 text-rose-600"><i class="fa-solid fa-heart-pulse text-xl"></i></div><div><p class="text-sm text-gray-500 font-medium">Programa 3</p><p class="text-lg font-bold text-gray-800">Salud Sexual / Repro.</p></div></div>
+      </div>
+    </section>
+
+    <!-- Participantes -->
+    <section id="tab-participants" class="hidden">
+      <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+        <div><h3 class="text-xl font-bold text-gray-800">Gestión y Seguimiento de Participantes</h3><p class="text-sm text-gray-500">Registre la participación, necesidades y debilidades según la intervención.</p></div>
+        <button onclick="openModal('add')" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors flex items-center"><i class="fa-solid fa-plus mr-2"></i> Nuevo Registro</button>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[200px]"><label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Buscar Participante</label>
+          <div class="relative"><div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fa-solid fa-search text-gray-400"></i></div>
+          <input type="text" id="search-input" placeholder="Nombre..." class="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"></div></div>
+        <div class="flex-1 min-w-[250px]"><label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Filtrar por Intervención</label>
+          <select id="filter-intervencion" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"><option value="all">Todas las intervenciones</option></select></div>
+      </div>
+      <div id="participants-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+      <div id="empty-state" class="hidden flex-col items-center justify-center py-16 px-4 text-center">
+        <div class="text-gray-300 mb-4"><i class="fa-solid fa-users-slash text-6xl"></i></div>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No hay participantes registrados</h3>
+        <p class="text-gray-500 mb-4">Comienza agregando un participante para hacer su seguimiento.</p>
+        <button onclick="openModal('add')" class="text-orange-500 hover:text-orange-700 font-medium">+ Agregar Participante</button>
+      </div>
+    </section>
+
+    <!-- Asistencia -->
+    <section id="tab-attendance" class="hidden">
+      <div class="mb-6 flex flex-wrap justify-between items-center gap-4">
+        <div><h3 class="text-xl font-bold text-gray-800">Control de Asistencia</h3></div>
+        <div class="flex items-center gap-3">
+          <span id="att-dirty" class="hidden text-xs font-semibold text-amber-700 bg-amber-100 border border-amber-200 rounded-full px-3 py-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>Cambios sin guardar</span>
+          <button onclick="saveAllAttendance()" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-5 rounded-lg shadow transition-colors flex items-center"><i class="fa-solid fa-floppy-disk mr-2"></i> Guardar Asistencia</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="att-kpis"></div>
+      <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-white uppercase bg-slate-700"><tr>
+              <th class="px-6 py-4 font-semibold w-24">Código</th>
+              <th class="px-6 py-4 font-semibold">Nombre Completo</th>
+              <th class="px-6 py-4 font-semibold text-center w-48">Hora Ingreso</th>
+              <th class="px-6 py-4 font-semibold text-center w-48">Hora Salida</th>
+              <th class="px-6 py-4 font-semibold text-center w-32">Estado</th>
+            </tr></thead>
+            <tbody id="attendance-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resumen -->
+    <section id="tab-reports" class="hidden">
+      <div class="mb-6"><h3 class="text-xl font-bold text-gray-800">Resumen de Seguimiento</h3><p class="text-sm text-gray-500">Resultados generales, avance por programa de los participantes.</p></div>
+      <div id="rep-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-6"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center">
+          <h4 class="font-semibold text-gray-800 mb-1 self-start">Resultado general</h4>
+          <p class="text-xs text-gray-500 mb-4 self-start">Participantes que lograron o no el indicador de salida.</p>
+          <div id="rep-overall" class="w-full flex flex-col items-center"></div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 lg:col-span-2">
+          <h4 class="font-semibold text-gray-800 mb-1">Resultado por programa (logrado vs. no logrado)</h4>
+          <p class="text-xs text-gray-500 mb-4">La marca vertical indica la meta del plan programático.</p>
+          <div id="rep-bars" class="space-y-6"></div>
+        </div>
+      </div>
+
+      <h4 class="font-semibold text-gray-800 mb-3">Detalle por programa</h4>
+      <div id="rep-programs" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h4 class="font-semibold text-gray-800 mb-1">Nivel de participación por programa</h4>
+          <p class="text-xs text-gray-500 mb-4">Distribución de participantes en nivel Bajo, Medio y Alto.</p>
+          <div id="rep-levels" class="space-y-4"></div>
+          <div class="flex gap-4 mt-5 text-xs text-gray-600"><span><i class="fa-solid fa-square text-red-400 mr-1"></i>Bajo</span><span><i class="fa-solid fa-square text-yellow-400 mr-1"></i>Medio</span><span><i class="fa-solid fa-square text-green-500 mr-1"></i>Alto</span></div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h4 class="font-semibold text-gray-800 mb-1">Participantes por edad</h4>
+          <p class="text-xs text-gray-500 mb-4">Cantidad de participantes por rango de edad.</p>
+          <div id="rep-ages" class="flex items-end gap-4 h-44"></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200"><h4 class="font-semibold text-gray-800">Detalle de participantes</h4></div>
+        <div class="overflow-x-auto"><table class="w-full text-sm text-left">
+          <thead class="text-xs text-gray-500 uppercase bg-gray-50"><tr><th class="px-6 py-3">Cód.</th><th class="px-6 py-3">Nombre</th><th class="px-6 py-3">Intervención</th><th class="px-6 py-3 text-center">Participación</th><th class="px-6 py-3 text-center">Indicador</th><th class="px-6 py-3 text-center">Asistencia</th></tr></thead>
+          <tbody id="rep-table"></tbody></table></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- Modal -->
+<div id="participant-modal" class="modal fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none">
+  <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+  <div class="bg-white rounded-xl shadow-2xl z-50 w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="modal-content">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-slate-50">
+      <h3 class="text-xl font-bold text-gray-800" id="modal-title">Registrar Participante</h3>
+      <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
     </div>
+    <div class="p-6 overflow-y-auto">
+      <form id="participant-form" class="space-y-5">
+        <input type="hidden" id="part-id">
+        <div>
+          <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide border-b pb-1 mb-3">Datos del Participante</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Código *</label><input type="number" id="part-code" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"></div>
+            <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo *</label><input type="text" id="part-name" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Edad *</label><input type="number" id="part-age" required min="0" max="99" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm"></div>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-orange-600 uppercase tracking-wide border-b border-orange-100 pb-1 mb-3 mt-2">Selección de Intervención (Plan Programático)</h4>
+          <div class="space-y-3">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Programa -> Intervención *</label>
+              <select id="part-intervencion" required class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm bg-orange-50"><option value="" disabled selected>Seleccione la intervención a aplicar...</option></select></div>
+            <div class="bg-gray-50 p-3 rounded border border-gray-200 text-sm hidden" id="context-data-box">
+              <p class="text-xs text-gray-500 uppercase font-semibold">Resultado Esperado:</p><p id="context-resultado" class="text-gray-700 italic mb-2"></p>
+              <p class="text-xs text-gray-500 uppercase font-semibold">Indicador de Salida Objetivo:</p><p id="context-indicador" class="text-gray-700 font-medium"></p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide border-b pb-1 mb-3 mt-2">Seguimiento y Estado</h4>
+          <div class="space-y-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Necesidad Personal Identificada *</label><textarea id="part-necesidad" required rows="2" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="Ej. Necesita acompañamiento en su proceso de fe..."></textarea></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Debilidades / Áreas de Mejora *</label><textarea id="part-debilidades" required rows="2" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-400 text-sm" placeholder="Ej. Falta de asistencia regular..."></textarea></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Acción / Intervención Específica a realizar *</label><p class="text-xs text-gray-500 mb-1">Detalle qué se hará específicamente con esta persona bajo este programa.</p><textarea id="part-accion" required rows="2" class="w-full border border-orange-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm" placeholder="Ej. Integrar a grupo pequeño los sábados..."></textarea></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Nivel de Participación Actual</label>
+              <div class="flex space-x-4 mt-1">
+                <label class="inline-flex items-center"><input type="radio" name="part-nivel" value="Bajo"><span class="ml-2 text-sm">Bajo</span></label>
+                <label class="inline-flex items-center"><input type="radio" name="part-nivel" value="Medio" checked><span class="ml-2 text-sm">Medio</span></label>
+                <label class="inline-flex items-center"><input type="radio" name="part-nivel" value="Alto"><span class="ml-2 text-sm">Alto</span></label>
+              </div></div>
+            <div class="bg-gray-50 p-3 border border-gray-200 rounded-lg mt-4">
+              <label class="block text-sm font-bold text-gray-800 mb-2">¿Logró el Indicador de Salida esperado?</label>
+              <div class="flex space-x-6 mt-1">
+                <label class="inline-flex items-center cursor-pointer"><input type="radio" name="part-logrado" value="Si" class="w-4 h-4"><span class="ml-2 text-sm font-medium text-green-700">Sí, obtenido</span></label>
+                <label class="inline-flex items-center cursor-pointer"><input type="radio" name="part-logrado" value="No" class="w-4 h-4" checked><span class="ml-2 text-sm font-medium text-red-700">Aún no (En proceso)</span></label>
+              </div></div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end space-x-3">
+      <button type="button" onclick="closeModal()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm">Cancelar</button>
+      <button type="button" onclick="saveParticipant()" class="px-4 py-2 bg-orange-500 rounded-lg text-white hover:bg-orange-600 font-medium text-sm shadow-sm flex items-center"><i class="fa-solid fa-save mr-2"></i> Guardar Registro</button>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // --- DATA: Exact extraction from the image provided, focusing ONLY on highlighted rows ---
-        // I define a structured object to hold the relationship Program -> Result -> Indicator -> Intervention
-        const planData = [
-            {
-                id: "prog1",
-                programa: "Crecimiento en Cristo",
-                resultado: "Los niños y jóvenes se sienten conectados y comprometidos con Dios, están integrados en una comunidad de fe y practican disciplinas bíblicas y otras prácticas espirituales.",
-                indicador: "60% de los participantes (18) de 19+ años, realiza servicio en la iglesia semanalmente.",
-                intervencion: "Más que Vencedores",
-                years: { 2026: true, 2027: false, 2028: true },
-                colorClass: "bg-blue-600 text-white" // Program color base
-            },
-            {
-                id: "prog2",
-                programa: "Protección Infantil",
-                resultado: "Los niños y jóvenes están seguros y no sufren formas violentas de castigo.",
-                indicador: "30% de los participantes (37) de 19+ años, sufrió formas violentas de castigo tales como agresión psicológica o castigo físico.",
-                intervencion: "Abrigo del Mañana",
-                years: { 2026: true, 2027: true, 2028: true },
-                colorClass: "bg-emerald-600 text-white"
-            },
-            {
-                id: "prog3",
-                programa: "Salud Sexual y Reproductiva",
-                resultado: "Los niños y jóvenes demuestran conocimientos básicos sobre prevención de embarazos a temprana edad y enfermedades de transmisión sexual.",
-                indicador: "51% de los participantes (37) de 19+ años tiene conocimientos sobre Salud Sexual y Reproductiva.",
-                intervencion: "Un Pacto con Dios",
-                years: { 2026: true, 2027: true, 2028: true },
-                colorClass: "bg-teal-700 text-white"
-            }
-        ];
+<div id="notification" class="fixed bottom-4 right-4 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center">
+  <i id="notif-icon" class="fa-solid fa-check-circle text-green-400 mr-3 text-xl"></i><span id="notif-msg" class="font-medium">Mensaje</span>
+</div>
 
-        // State for participants
-        let participants = [];
+<script>
+// meta = % mínimo de participantes que deben lograr el indicador (según el plan programático)
+// okText / koText = frase de resultado para el resumen
+const planData = [
+  { id:"prog1", programa:"Crecimiento en Cristo",
+    resultado:"Los niños y jóvenes se sienten conectados y comprometidos con Dios, están integrados en una comunidad de fe y practican disciplinas bíblicas y otras prácticas espirituales.",
+    indicador:"60% de los participantes (18) de 19+ años, realiza servicio en la iglesia semanalmente.",
+    intervencion:"Más que Vencedores", years:{2026:true,2027:false,2028:true},
+    colorClass:"bg-blue-600 text-white", hex:"#2563eb", meta:60,
+    okText:"realiza servicio en la iglesia semanalmente", koText:"aún no realiza servicio semanal" },
+  { id:"prog2", programa:"Protección Infantil",
+    resultado:"Los niños y jóvenes están seguros y no sufren formas violentas de castigo.",
+    indicador:"30% de los participantes (37) de 19+ años, sufrió formas violentas de castigo tales como agresión psicológica o castigo físico.",
+    intervencion:"Abrigo del Mañana", years:{2026:true,2027:true,2028:true},
+    colorClass:"bg-emerald-600 text-white", hex:"#059669", meta:70,
+    okText:"está seguro y no sufre castigo violento", koText:"aún sufre formas violentas de castigo" },
+  { id:"prog3", programa:"Salud Sexual y Reproductiva",
+    resultado:"Los niños y jóvenes demuestran conocimientos básicos sobre prevención de embarazos a temprana edad y enfermedades de transmisión sexual.",
+    indicador:"51% de los participantes (37) de 19+ años tiene conocimientos sobre Salud Sexual y Reproductiva.",
+    intervencion:"Un Pacto con Dios", years:{2026:true,2027:true,2028:true},
+    colorClass:"bg-teal-700 text-white", hex:"#0f766e", meta:51,
+    okText:"tiene conocimientos sobre salud sexual y reproductiva", koText:"aún no demuestra esos conocimientos" }
+];
+const GREEN="#16a34a", RED="#f87171";
+let participants = [];
+let attDirty = false;
 
-        // Initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set Date
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-ES', options);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (a,b) => b ? Math.round(a/b*100) : 0;
 
-            renderPlanTable();
-            populateSelects();
-            loadParticipants();
-            setupEventListeners();
-        });
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-ES',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  renderPlanTable(); populateSelects(); loadParticipants(); setupEventListeners();
+});
 
-        // --- STREAMING_CHUNK:UI Rendering Functions (Table & Selects) ---
+function renderPlanTable() {
+  const tbody = document.getElementById('plan-table-body'); tbody.innerHTML = '';
+  const check = v => v ? '<i class="fa-solid fa-xmark text-orange-600 font-bold text-lg"></i>' : '';
+  planData.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = "border-b border-gray-200 hover:bg-orange-50 transition-colors";
+    tr.innerHTML = `
+      <td class="px-6 py-4 align-top border-r border-gray-200"><span class="inline-block px-2 py-1 rounded text-xs font-bold ${r.colorClass} shadow-sm">${r.programa}</span></td>
+      <td class="px-6 py-4 align-top text-sm text-gray-700 bg-orange-100/30 border-r border-gray-200">${r.resultado}</td>
+      <td class="px-6 py-4 align-top text-sm font-medium text-gray-800 bg-orange-100/50 border-r border-gray-200">${r.indicador}</td>
+      <td class="px-6 py-4 align-middle text-center border-r border-gray-200"><span class="bg-orange-200 text-orange-800 py-1.5 px-3 rounded-md font-bold shadow-sm inline-block w-full">${r.intervencion}</span></td>
+      <td class="px-3 py-4 text-center bg-orange-50/50">${check(r.years[2026])}</td>
+      <td class="px-3 py-4 text-center bg-orange-50/50">${check(r.years[2027])}</td>
+      <td class="px-3 py-4 text-center bg-orange-50/50">${check(r.years[2028])}</td>`;
+    tbody.appendChild(tr);
+  });
+}
 
-        function renderPlanTable() {
-            const tbody = document.getElementById('plan-table-body');
-            tbody.innerHTML = '';
+function populateSelects() {
+  const sel = document.getElementById('part-intervencion'), fil = document.getElementById('filter-intervencion');
+  planData.forEach(p => {
+    sel.add(new Option(`${p.programa} - ${p.intervencion}`, p.id));
+    fil.add(new Option(p.intervencion, p.id));
+  });
+  sel.addEventListener('change', e => {
+    const d = planData.find(p => p.id === e.target.value), box = document.getElementById('context-data-box');
+    if (d) {
+      document.getElementById('context-resultado').textContent = d.resultado;
+      document.getElementById('context-indicador').textContent = d.indicador;
+      box.classList.remove('hidden');
+    } else box.classList.add('hidden');
+  });
+}
 
-            planData.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-200 hover:bg-orange-50 transition-colors";
-                
-                // Check mark helper
-                const check = (val) => val ? '<i class="fa-solid fa-xmark text-orange-600 font-bold text-lg"></i>' : '';
+function loadParticipants() {
+  const saved = localStorage.getItem('sisSeguimiento_participantes');
+  if (saved) { try { participants = JSON.parse(saved); } catch(e) { participants = []; } }
+  else {
+    participants = [
+      { id:Date.now().toString(), codigo:"1001", name:"Juan Pérez", age:20, programId:"prog1", necesidad:"Necesita reafirmar su compromiso.", debilidades:"Inasistencia por trabajo.", accion:"Reuniones en horario flexible.", nivel:"Medio", logrado:"No", ingreso:"", salida:"", date:new Date().toISOString() },
+      { id:(Date.now()+1).toString(), codigo:"1002", name:"María López", age:22, programId:"prog3", necesidad:"Información clara.", debilidades:"Mitos sobre salud.", accion:"Taller personalizado.", nivel:"Alto", logrado:"Si", ingreso:"14:00", salida:"16:30", date:new Date().toISOString() }
+    ];
+    saveToLocal();
+  }
+  refreshAll();
+}
+function saveToLocal() { localStorage.setItem('sisSeguimiento_participantes', JSON.stringify(participants)); }
+function refreshAll() {
+  renderParticipants(document.getElementById('search-input').value, document.getElementById('filter-intervencion').value);
+  renderAttendanceTable(); updateStats();
+}
 
-                tr.innerHTML = `
-                    <td class="px-6 py-4 align-top border-r border-gray-200">
-                        <span class="inline-block px-2 py-1 rounded text-xs font-bold ${row.colorClass} shadow-sm mb-2">${row.programa}</span>
-                    </td>
-                    <td class="px-6 py-4 align-top text-sm text-gray-700 bg-orange-100/30 border-r border-gray-200">${row.resultado}</td>
-                    <td class="px-6 py-4 align-top text-sm font-medium text-gray-800 bg-orange-100/50 border-r border-gray-200">${row.indicador}</td>
-                    <td class="px-6 py-4 align-middle text-center border-r border-gray-200">
-                        <span class="bg-orange-200 text-orange-800 py-1.5 px-3 rounded-md font-bold shadow-sm inline-block w-full">${row.intervencion}</span>
-                    </td>
-                    <td class="px-3 py-4 align-middle text-center bg-orange-50/50">${check(row.years[2026])}</td>
-                    <td class="px-3 py-4 align-middle text-center bg-orange-50/50">${check(row.years[2027])}</td>
-                    <td class="px-3 py-4 align-middle text-center bg-orange-50/50">${check(row.years[2028])}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+function renderParticipants(filterText = "", filterProg = "all") {
+  const container = document.getElementById('participants-container'), empty = document.getElementById('empty-state');
+  container.innerHTML = '';
+  const list = participants.filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()) && (filterProg === "all" || p.programId === filterProg));
+  if (!list.length) { container.classList.add('hidden'); empty.classList.remove('hidden'); empty.classList.add('flex'); return; }
+  container.classList.remove('hidden'); empty.classList.add('hidden'); empty.classList.remove('flex');
+  list.forEach(p => {
+    const pd = planData.find(x => x.id === p.programId);
+    const badge = p.nivel === 'Alto' ? 'bg-green-100 text-green-800' : p.nivel === 'Medio' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+    const card = document.createElement('div');
+    card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group";
+    card.innerHTML = `
+      <div class="h-2 w-full ${pd ? pd.colorClass.split(' ')[0] : 'bg-gray-400'}"></div>
+      <div class="p-5">
+        <div class="flex justify-between items-start mb-2">
+          <div><h4 class="font-bold text-lg text-gray-800"><span class="text-orange-500 font-mono text-sm mr-2">#${esc(p.codigo) || 'S/N'}</span>${esc(p.name)}</h4>
+          <p class="text-xs text-gray-500"><i class="fa-regular fa-clock mr-1"></i> Edad: ${esc(p.age)} años | Reg: ${new Date(p.date).toLocaleDateString()}</p></div>
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="editParticipant('${p.id}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded"><i class="fa-solid fa-pen text-sm"></i></button>
+            <button onclick="deleteParticipant('${p.id}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fa-solid fa-trash text-sm"></i></button>
+          </div>
+        </div>
+        <div class="mt-3 mb-4 inline-block px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-bold border border-orange-200">${pd ? pd.intervencion : 'Desconocido'}</div>
+        <div class="space-y-3 mt-2">
+          <div><p class="text-xs font-semibold text-gray-500 uppercase">Necesidad / Debilidad:</p><p class="text-sm text-gray-700 line-clamp-2" title="${esc(p.necesidad)} | ${esc(p.debilidades)}">${esc(p.necesidad)}</p></div>
+          <div class="bg-slate-50 p-2 rounded border border-slate-100"><p class="text-xs font-semibold text-slate-500 uppercase">Acción a realizar:</p><p class="text-sm text-slate-700 font-medium">${esc(p.accion)}</p></div>
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+        <span class="text-xs text-gray-500 font-medium">Participación:</span><span class="px-2 py-1 rounded text-xs font-bold ${badge}">${p.nivel}</span>
+      </div>`;
+    container.appendChild(card);
+  });
+}
 
-        function populateSelects() {
-            const selectIntervencion = document.getElementById('part-intervencion');
-            const filterIntervencion = document.getElementById('filter-intervencion');
-            
-            planData.forEach(p => {
-                // For Modal Form
-                const option = document.createElement('option');
-                option.value = p.id;
-                option.textContent = `${p.programa} - ${p.intervencion}`;
-                selectIntervencion.appendChild(option);
+function saveParticipant() {
+  const form = document.getElementById('participant-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const id = document.getElementById('part-id').value, editing = id !== "";
+  const old = editing ? participants.find(p => p.id === id) : null;
+  const np = {
+    id: editing ? id : Date.now().toString(),
+    codigo: document.getElementById('part-code').value,
+    name: document.getElementById('part-name').value,
+    age: document.getElementById('part-age').value,
+    programId: document.getElementById('part-intervencion').value,
+    necesidad: document.getElementById('part-necesidad').value,
+    debilidades: document.getElementById('part-debilidades').value,
+    accion: document.getElementById('part-accion').value,
+    nivel: document.querySelector('input[name="part-nivel"]:checked').value,
+    logrado: document.querySelector('input[name="part-logrado"]:checked').value,
+    ingreso: old ? old.ingreso : "", salida: old ? old.salida : "",
+    date: old ? old.date : new Date().toISOString()
+  };
+  if (editing) { participants[participants.findIndex(p => p.id === id)] = np; showNotification("Registro actualizado exitosamente"); }
+  else { participants.unshift(np); showNotification("Participante registrado exitosamente"); }
+  saveToLocal(); attDirty = false; refreshAll(); closeModal();
+}
 
-                // For Filter
-                const fOption = document.createElement('option');
-                fOption.value = p.id;
-                fOption.textContent = p.intervencion;
-                filterIntervencion.appendChild(fOption);
-            });
+function editParticipant(id) {
+  const p = participants.find(x => x.id === id); if (!p) return;
+  document.getElementById('part-id').value = p.id;
+  document.getElementById('part-code').value = p.codigo || '';
+  document.getElementById('part-name').value = p.name;
+  document.getElementById('part-age').value = p.age;
+  const s = document.getElementById('part-intervencion'); s.value = p.programId; s.dispatchEvent(new Event('change'));
+  document.getElementById('part-necesidad').value = p.necesidad;
+  document.getElementById('part-debilidades').value = p.debilidades;
+  document.getElementById('part-accion').value = p.accion;
+  document.querySelector(`input[name="part-nivel"][value="${p.nivel}"]`).checked = true;
+  if (p.logrado) document.querySelector(`input[name="part-logrado"][value="${p.logrado}"]`).checked = true;
+  document.getElementById('modal-title').textContent = "Editar Registro";
+  openModal('edit');
+}
 
-            // Context update on selection change in modal
-            selectIntervencion.addEventListener('change', (e) => {
-                const selectedId = e.target.value;
-                const data = planData.find(p => p.id === selectedId);
-                const contextBox = document.getElementById('context-data-box');
-                
-                if (data) {
-                    document.getElementById('context-resultado').textContent = data.resultado;
-                    document.getElementById('context-indicador').textContent = data.indicador;
-                    contextBox.classList.remove('hidden');
-                } else {
-                    contextBox.classList.add('hidden');
-                }
-            });
-        }
+function deleteParticipant(id) {
+  participants = participants.filter(p => p.id !== id);
+  saveToLocal(); attDirty = false; refreshAll(); showNotification("Registro eliminado", "error");
+}
 
-        // --- STREAMING_CHUNK:Participant Management Logic ---
+function setupEventListeners() {
+  document.getElementById('search-input').addEventListener('input', e => renderParticipants(e.target.value, document.getElementById('filter-intervencion').value));
+  document.getElementById('filter-intervencion').addEventListener('change', e => renderParticipants(document.getElementById('search-input').value, e.target.value));
+}
 
-        function loadParticipants() {
-            const saved = localStorage.getItem('sisSeguimiento_participantes');
-            if (saved) {
-                try {
-                    participants = JSON.parse(saved);
-                } catch(e) {
-                    participants = [];
-                }
-            } else {
-                // Add some dummy data for demonstration if empty
-                participants = [
-                    { id: Date.now().toString(), codigo: "1001", name: "Juan Pérez", age: 20, programId: "prog1", necesidad: "Necesita reafirmar su compromiso.", debilidades: "Inasistencia por trabajo.", accion: "Reuniones en horario flexible.", nivel: "Medio", logrado: "No", ingreso: "", salida: "", date: new Date().toISOString() },
-                    { id: (Date.now()+1).toString(), codigo: "1002", name: "María López", age: 22, programId: "prog3", necesidad: "Información clara.", debilidades: "Mitos sobre salud.", accion: "Taller personalizado.", nivel: "Alto", logrado: "Si", ingreso: "14:00", salida: "16:30", date: new Date().toISOString() }
-                ];
-                saveToLocal();
-            }
-            renderParticipants();
-            renderAttendanceTable();
-            updateStats();
-        }
+function switchTab(tabId) {
+  ['dashboard','participants','attendance','reports'].forEach(id => {
+    const btn = document.getElementById(`btn-tab-${id}`), on = id === tabId;
+    btn.classList.toggle('bg-slate-700', on); btn.classList.toggle('text-orange-400', on);
+    btn.classList.toggle('text-gray-300', !on); btn.classList.toggle('hover:bg-slate-700', !on); btn.classList.toggle('hover:text-white', !on);
+    document.getElementById(`tab-${id}`).classList.toggle('hidden', !on);
+    document.getElementById(`tab-${id}`).classList.toggle('block', on);
+  });
+  document.getElementById('page-title').textContent = { dashboard:'Plan Programático', participants:'Gestión de Participantes', attendance:'Registro de Asistencia', reports:'Reportes y Resumen' }[tabId];
+  if (tabId === 'reports') updateStats();
+  if (tabId === 'attendance') renderAttendanceTable();
+}
 
-        function saveToLocal() {
-            localStorage.setItem('sisSeguimiento_participantes', JSON.stringify(participants));
-        }
+function openModal(mode) {
+  if (mode === 'add') {
+    document.getElementById('participant-form').reset();
+    document.getElementById('part-id').value = "";
+    document.getElementById('context-data-box').classList.add('hidden');
+    document.getElementById('modal-title').textContent = "Registrar Participante";
+  }
+  const m = document.getElementById('participant-modal'), c = document.getElementById('modal-content');
+  document.body.classList.add('modal-active'); m.classList.remove('pointer-events-none');
+  setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10);
+}
+function closeModal() {
+  const m = document.getElementById('participant-modal'), c = document.getElementById('modal-content');
+  m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
+  setTimeout(() => { m.classList.add('pointer-events-none'); document.body.classList.remove('modal-active'); }, 300);
+}
+function showNotification(msg, type = "success") {
+  const n = document.getElementById('notification');
+  document.getElementById('notif-msg').textContent = msg;
+  document.getElementById('notif-icon').className = type === "success" ? "fa-solid fa-check-circle text-green-400 mr-3 text-xl" : "fa-solid fa-info-circle text-blue-400 mr-3 text-xl";
+  n.classList.remove('translate-y-20', 'opacity-0');
+  setTimeout(() => n.classList.add('translate-y-20', 'opacity-0'), 3000);
+}
 
-        function renderParticipants(filterText = "", filterProg = "all") {
-            const container = document.getElementById('participants-container');
-            const emptyState = document.getElementById('empty-state');
-            
-            container.innerHTML = '';
-            
-            let filtered = participants.filter(p => {
-                const matchName = p.name.toLowerCase().includes(filterText.toLowerCase());
-                const matchProg = filterProg === "all" || p.programId === filterProg;
-                return matchName && matchProg;
-            });
+/* ---------- ASISTENCIA (un solo botón general) ---------- */
+function renderAttendanceTable() {
+  const tbody = document.getElementById('attendance-table-body');
+  tbody.innerHTML = '';
+  if (!participants.length) { tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay participantes registrados.</td></tr>'; renderAttKpis(); return; }
+  participants.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.className = "border-b border-gray-200 hover:bg-gray-50 transition-colors";
+    const inp = (k, v) => `<div class="flex items-center justify-center gap-2">
+      <input type="time" id="${k}-${p.id}" value="${v || ''}" oninput="markDirty('${p.id}')" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-orange-400 focus:border-orange-400 w-28 text-center font-mono">
+      <button type="button" onclick="setNow('${k}','${p.id}')" title="Poner hora actual" class="text-slate-400 hover:text-orange-500"><i class="fa-regular fa-clock"></i></button></div>`;
+    tr.innerHTML = `
+      <td class="px-6 py-4 font-mono font-bold text-slate-600">${esc(p.codigo) || '-'}</td>
+      <td class="px-6 py-4 font-medium text-gray-800">${esc(p.name)}</td>
+      <td class="px-6 py-4 text-center">${inp('ingreso', p.ingreso)}</td>
+      <td class="px-6 py-4 text-center">${inp('salida', p.salida)}</td>
+      <td class="px-6 py-4 text-center" id="status-${p.id}"></td>`;
+    tbody.appendChild(tr); paintStatus(p.id);
+  });
+  renderAttKpis();
+}
+function paintStatus(id) {
+  const i = document.getElementById(`ingreso-${id}`), s = document.getElementById(`salida-${id}`), el = document.getElementById(`status-${id}`);
+  if (!i || !el) return;
+  el.innerHTML = i.value && s.value ? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Completo</span>'
+    : i.value ? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">En curso</span>'
+    : '<span class="px-2 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500">Ausente</span>';
+}
+function markDirty(id) { attDirty = true; document.getElementById('att-dirty').classList.remove('hidden'); paintStatus(id); }
+function setNow(k, id) {
+  const d = new Date(), v = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  document.getElementById(`${k}-${id}`).value = v; markDirty(id);
+}
+function saveAllAttendance() {
+  participants.forEach(p => {
+    const i = document.getElementById(`ingreso-${p.id}`), s = document.getElementById(`salida-${p.id}`);
+    if (i && s) { p.ingreso = i.value; p.salida = s.value; }
+  });
+  saveToLocal(); attDirty = false;
+  document.getElementById('att-dirty').classList.add('hidden');
+  renderAttKpis(); updateStats(); showNotification("Asistencia de todos guardada con éxito");
+}
+function renderAttKpis() {
+  const t = participants.length, pres = participants.filter(p => p.ingreso).length, comp = participants.filter(p => p.ingreso && p.salida).length;
+  const k = (l, v, ic, c) => `<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center"><div class="rounded-full p-3 mr-3 ${c}"><i class="fa-solid ${ic}"></i></div><div><p class="text-xs text-gray-500 font-medium">${l}</p><p class="text-2xl font-bold text-gray-800">${v}</p></div></div>`;
+  document.getElementById('att-kpis').innerHTML =
+    k('Total', t, 'fa-users', 'bg-blue-50 text-blue-500') + k('Presentes', pres, 'fa-user-check', 'bg-green-50 text-green-600') +
+    k('Ausentes', t - pres, 'fa-user-xmark', 'bg-red-50 text-red-500') + k('% Asistencia', pct(pres, t) + '%', 'fa-percent', 'bg-orange-50 text-orange-500');
+}
 
-            if (filtered.length === 0) {
-                container.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                emptyState.classList.add('flex');
-            } else {
-                container.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-                emptyState.classList.remove('flex');
+/* ---------- RESUMEN ---------- */
+function donut(p, color, size = 150, label = '', sub = '') {
+  const r = 40, c = 2 * Math.PI * r, d = c * p / 100;
+  return `<div class="relative" style="width:${size}px;height:${size}px">
+    <svg viewBox="0 0 100 100" class="-rotate-90 w-full h-full"><circle cx="50" cy="50" r="${r}" fill="none" stroke-width="12" class="ring-bg"/>
+    <circle cx="50" cy="50" r="${r}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" class="donut-arc" stroke-dasharray="${d} ${c}"/></svg>
+    <div class="absolute inset-0 flex flex-col items-center justify-center"><span class="text-3xl font-black text-gray-800">${label || p + '%'}</span><span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">${sub}</span></div></div>`;
+}
 
-                filtered.forEach(p => {
-                    const programData = planData.find(plan => plan.id === p.programId);
-                    
-                    let badgeColor = p.nivel === 'Alto' ? 'bg-green-100 text-green-800' : 
-                                     p.nivel === 'Medio' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+function updateStats() {
+  const total = participants.length;
+  const ok = participants.filter(p => p.logrado === 'Si').length, ko = total - ok;
+  const pres = participants.filter(p => p.ingreso).length;
+  const avgAge = total ? Math.round(participants.reduce((a, p) => a + Number(p.age || 0), 0) / total) : 0;
 
-                    const card = document.createElement('div');
-                    card.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group";
-                    
-                    card.innerHTML = `
-                        <div class="h-2 w-full ${programData ? programData.colorClass.split(' ')[0] : 'bg-gray-400'}"></div>
-                        <div class="p-5">
-                            <div class="flex justify-between items-start mb-2">
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800"><span class="text-orange-500 font-mono text-sm mr-2">#${p.codigo || 'S/N'}</span>${p.name}</h4>
-                                    <p class="text-xs text-gray-500"><i class="fa-regular fa-clock mr-1"></i> Edad: ${p.age} años | Reg: ${new Date(p.date).toLocaleDateString()}</p>
-                                </div>
-                                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="editParticipant('${p.id}')" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-1.5 rounded"><i class="fa-solid fa-pen text-sm"></i></button>
-                                    <button onclick="deleteParticipant('${p.id}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fa-solid fa-trash text-sm"></i></button>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-3 mb-4 inline-block px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-bold border border-orange-200">
-                                ${programData ? programData.intervencion : 'Desconocido'}
-                            </div>
+  const kpi = (l, v, ic, c, sub) => `<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between"><div><p class="text-sm font-medium text-gray-500">${l}</p><p class="text-3xl font-bold text-gray-800 mt-1">${v}</p><p class="text-xs text-gray-400 mt-1">${sub}</p></div><div class="p-3 rounded-full ${c}"><i class="fa-solid ${ic} text-xl"></i></div></div>`;
+  document.getElementById('rep-kpis').innerHTML =
+    kpi('Total Participantes', total, 'fa-users', 'bg-blue-50 text-blue-500', 'Edad promedio: ' + avgAge + ' años') +
+    kpi('Indicador logrado', pct(ok, total) + '%', 'fa-circle-check', 'bg-green-50 text-green-600', ok + ' participantes') +
+    kpi('Indicador no logrado', pct(ko, total) + '%', 'fa-circle-xmark', 'bg-red-50 text-red-500', ko + ' participantes') +
+    kpi('Asistencia registrada', pct(pres, total) + '%', 'fa-clipboard-user', 'bg-orange-50 text-orange-500', pres + ' de ' + total);
 
-                            <div class="space-y-3 mt-2">
-                                <div>
-                                    <p class="text-xs font-semibold text-gray-500 uppercase">Necesidad / Debilidad:</p>
-                                    <p class="text-sm text-gray-700 line-clamp-2" title="${p.necesidad} | ${p.debilidades}">${p.necesidad}</p>
-                                </div>
-                                <div class="bg-slate-50 p-2 rounded border border-slate-100">
-                                    <p class="text-xs font-semibold text-slate-500 uppercase">Acción a realizar:</p>
-                                    <p class="text-sm text-slate-700 font-medium">${p.accion}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
-                            <span class="text-xs text-gray-500 font-medium">Participación:</span>
-                            <span class="px-2 py-1 rounded text-xs font-bold ${badgeColor}">${p.nivel}</span>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-        }
+  const empty = '<p class="text-sm text-gray-500 italic py-6 text-center">No hay datos suficientes.</p>';
+  if (!total) {
+    ['rep-overall','rep-bars','rep-programs','rep-levels'].forEach(i => document.getElementById(i).innerHTML = empty);
+    document.getElementById('rep-ages').innerHTML = ''; document.getElementById('rep-table').innerHTML = ''; return;
+  }
 
-        // --- STREAMING_CHUNK:Form Actions (Save, Edit, Delete) ---
+  document.getElementById('rep-overall').innerHTML = donut(pct(ok, total), GREEN, 170, '', 'Logrado') + `
+    <div class="w-full mt-5 space-y-2 text-sm">
+      <div class="flex justify-between bg-green-50 border border-green-100 rounded px-3 py-2"><span><i class="fa-solid fa-circle text-green-600 text-[8px] mr-2"></i>Lograron</span><b>${pct(ok, total)}% (${ok})</b></div>
+      <div class="flex justify-between bg-red-50 border border-red-100 rounded px-3 py-2"><span><i class="fa-solid fa-circle text-red-400 text-[8px] mr-2"></i>No lograron</span><b>${pct(ko, total)}% (${ko})</b></div></div>`;
 
-        function saveParticipant() {
-            const form = document.getElementById('participant-form');
-            if(!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+  let bars = '', cards = '', levels = '';
+  planData.forEach(pl => {
+    const g = participants.filter(x => x.programId === pl.id), n = g.length, o = g.filter(x => x.logrado === 'Si').length, k = n - o;
+    const po = pct(o, n), pk = n ? 100 - po : 0, met = n && po >= pl.meta;
+    bars += `<div><div class="flex justify-between text-sm mb-1"><span class="font-semibold text-gray-700">${pl.intervencion}</span><span class="text-xs text-gray-500">${n} participantes · meta ${pl.meta}%</span></div>
+      <div class="relative h-7 rounded-full overflow-hidden bg-gray-100 flex">
+        <div class="bar-fill h-full bg-green-500 flex items-center justify-center text-white text-xs font-bold" style="width:${po}%">${po ? po + '%' : ''}</div>
+        <div class="bar-fill h-full bg-red-400 flex items-center justify-center text-white text-xs font-bold" style="width:${pk}%">${pk ? pk + '%' : ''}</div>
+        <div class="absolute top-0 bottom-0 border-l-2 border-dashed border-slate-800" style="left:${pl.meta}%" title="Meta ${pl.meta}%"></div></div></div>`;
+    cards += `<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="h-1.5" style="background:${pl.hex}"></div><div class="p-5">
+      <p class="text-xs font-bold uppercase text-gray-400">${pl.programa}</p><h5 class="font-bold text-gray-800 mb-4">${pl.intervencion}</h5>
+      <div class="flex justify-center mb-4">${donut(po, pl.hex, 130, '', 'Logrado')}</div>
+      <div class="space-y-2 text-sm">
+        <p class="bg-green-50 border border-green-100 rounded px-3 py-2"><b class="text-green-700">${po}%</b> ${pl.okText} <span class="text-gray-400">(${o})</span></p>
+        <p class="bg-red-50 border border-red-100 rounded px-3 py-2"><b class="text-red-600">${pk}%</b> ${pl.koText} <span class="text-gray-400">(${k})</span></p></div>
+      <div class="mt-4 text-xs font-semibold flex items-center ${!n ? 'text-gray-400' : met ? 'text-green-700' : 'text-amber-700'}"><i class="fa-solid ${!n ? 'fa-minus' : met ? 'fa-flag-checkered' : 'fa-hourglass-half'} mr-2"></i>${!n ? 'Sin datos' : met ? 'Meta alcanzada' : 'Faltan ' + (pl.meta - po) + ' pts para la meta de ' + pl.meta + '%'}</div>
+      </div></div>`;
+    const lv = x => g.filter(y => y.nivel === x).length;
+    levels += `<div><div class="flex justify-between text-sm mb-1"><span class="font-semibold text-gray-700">${pl.intervencion}</span><span class="text-xs text-gray-500">${lv('Bajo')} / ${lv('Medio')} / ${lv('Alto')}</span></div>
+      <div class="h-4 rounded-full overflow-hidden bg-gray-100 flex"><div class="bg-red-400" style="width:${pct(lv('Bajo'), n)}%"></div><div class="bg-yellow-400" style="width:${pct(lv('Medio'), n)}%"></div><div class="bg-green-500" style="width:${pct(lv('Alto'), n)}%"></div></div></div>`;
+  });
+  document.getElementById('rep-bars').innerHTML = bars;
+  document.getElementById('rep-programs').innerHTML = cards;
+  document.getElementById('rep-levels').innerHTML = levels;
 
-            const id = document.getElementById('part-id').value;
-            const isEditing = id !== "";
-            
-            const newParticipant = {
-                id: isEditing ? id : Date.now().toString(),
-                codigo: document.getElementById('part-code').value,
-                name: document.getElementById('part-name').value,
-                age: document.getElementById('part-age').value,
-                programId: document.getElementById('part-intervencion').value,
-                necesidad: document.getElementById('part-necesidad').value,
-                debilidades: document.getElementById('part-debilidades').value,
-                accion: document.getElementById('part-accion').value,
-                nivel: document.querySelector('input[name="part-nivel"]:checked').value,
-                logrado: document.querySelector('input[name="part-logrado"]:checked').value,
-                ingreso: isEditing ? participants.find(p=>p.id===id).ingreso : "",
-                salida: isEditing ? participants.find(p=>p.id===id).salida : "",
-                date: isEditing ? participants.find(p=>p.id===id).date : new Date().toISOString()
-            };
+  const ranges = [['≤18', a => a <= 18], ['19-21', a => a >= 19 && a <= 21], ['22-25', a => a >= 22 && a <= 25], ['26-30', a => a >= 26 && a <= 30], ['31+', a => a > 30]];
+  const cnt = ranges.map(r => participants.filter(p => r[1](Number(p.age))).length), mx = Math.max(...cnt, 1);
+  document.getElementById('rep-ages').innerHTML = ranges.map((r, i) => `<div class="flex-1 flex flex-col items-center justify-end h-full">
+    <span class="text-xs font-bold text-gray-600 mb-1">${cnt[i]}</span><div class="w-full bg-orange-400 rounded-t-md bar-fill" style="height:${cnt[i] / mx * 100}%;min-height:${cnt[i] ? 4 : 0}px"></div><span class="text-xs text-gray-500 mt-2">${r[0]}</span></div>`).join('');
 
-            if (isEditing) {
-                const index = participants.findIndex(p => p.id === id);
-                participants[index] = newParticipant;
-                showNotification("Registro actualizado exitosamente");
-            } else {
-                participants.unshift(newParticipant); // Add to top
-                showNotification("Participante registrado exitosamente");
-            }
-
-            saveToLocal();
-            renderParticipants(document.getElementById('search-input').value, document.getElementById('filter-intervencion').value);
-            renderAttendanceTable();
-            updateStats();
-            closeModal();
-        }
-
-        function editParticipant(id) {
-            const p = participants.find(x => x.id === id);
-            if (!p) return;
-
-            document.getElementById('part-id').value = p.id;
-            document.getElementById('part-code').value = p.codigo || '';
-            document.getElementById('part-name').value = p.name;
-            document.getElementById('part-age').value = p.age;
-            
-            const selectInt = document.getElementById('part-intervencion');
-            selectInt.value = p.programId;
-            // Trigger change to show context
-            const event = new Event('change');
-            selectInt.dispatchEvent(event);
-
-            document.getElementById('part-necesidad').value = p.necesidad;
-            document.getElementById('part-debilidades').value = p.debilidades;
-            document.getElementById('part-accion').value = p.accion;
-            
-            document.querySelector(`input[name="part-nivel"][value="${p.nivel}"]`).checked = true;
-            if(p.logrado) {
-                document.querySelector(`input[name="part-logrado"][value="${p.logrado}"]`).checked = true;
-            }
-
-            document.getElementById('modal-title').textContent = "Editar Registro";
-            openModal('edit');
-        }
-
-        function deleteParticipant(id) {
-            // Replaced default confirm with custom UI logic conceptually, but for simplicity in single file without huge modal logic for confirm, 
-            // I'll do direct delete with undo notification conceptually, but implementing direct delete for brevity as per rules to avoid window.confirm
-            // Real app should have a modal. I will just delete it directly to comply strictly with "no confirm()" rule.
-            
-            participants = participants.filter(p => p.id !== id);
-            saveToLocal();
-            renderParticipants(document.getElementById('search-input').value, document.getElementById('filter-intervencion').value);
-            renderAttendanceTable();
-            updateStats();
-            showNotification("Registro eliminado", "error");
-        }
-
-        // --- STREAMING_CHUNK:UI Interactions & Helpers ---
-
-        function setupEventListeners() {
-            document.getElementById('search-input').addEventListener('input', (e) => {
-                renderParticipants(e.target.value, document.getElementById('filter-intervencion').value);
-            });
-
-            document.getElementById('filter-intervencion').addEventListener('change', (e) => {
-                renderParticipants(document.getElementById('search-input').value, e.target.value);
-            });
-        }
-
-        function switchTab(tabId) {
-            // Update buttons
-            ['dashboard', 'participants', 'attendance', 'reports'].forEach(id => {
-                const btn = document.getElementById(`btn-tab-${id}`);
-                if(id === tabId) {
-                    btn.classList.add('bg-slate-700', 'text-orange-400');
-                    btn.classList.remove('text-gray-300', 'hover:bg-slate-700', 'hover:text-white');
-                } else {
-                    btn.classList.remove('bg-slate-700', 'text-orange-400');
-                    btn.classList.add('text-gray-300', 'hover:bg-slate-700', 'hover:text-white');
-                }
-                
-                // Hide sections
-                document.getElementById(`tab-${id}`).classList.add('hidden');
-                document.getElementById(`tab-${id}`).classList.remove('block');
-            });
-
-            // Show selected section
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`tab-${tabId}`).classList.add('block');
-
-            // Update Title
-            const titles = {
-                'dashboard': 'Plan Programático',
-                'participants': 'Gestión de Participantes',
-                'attendance': 'Registro de Asistencia',
-                'reports': 'Reportes y Resumen'
-            };
-            document.getElementById('page-title').textContent = titles[tabId];
-            
-            if(tabId === 'reports') updateStats();
-            if(tabId === 'attendance') renderAttendanceTable();
-        }
-
-        function openModal(mode) {
-            if (mode === 'add') {
-                document.getElementById('participant-form').reset();
-                document.getElementById('part-id').value = "";
-                document.querySelector(`input[name="part-logrado"][value="No"]`).checked = true;
-                document.getElementById('context-data-box').classList.add('hidden');
-                document.getElementById('modal-title').textContent = "Registrar Participante";
-            }
-            const modal = document.getElementById('participant-modal');
-            const content = document.getElementById('modal-content');
-            
-            document.body.classList.add('modal-active');
-            modal.classList.remove('pointer-events-none');
-            
-            // Trigger animation
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            }, 10);
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('participant-modal');
-            const content = document.getElementById('modal-content');
-            
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('pointer-events-none');
-                document.body.classList.remove('modal-active');
-            }, 300); // match transition duration
-        }
-
-        function showNotification(msg, type = "success") {
-            const notif = document.getElementById('notification');
-            const icon = document.getElementById('notif-icon');
-            const msgEl = document.getElementById('notif-msg');
-            
-            msgEl.textContent = msg;
-            
-            if (type === "success") {
-                icon.className = "fa-solid fa-check-circle text-green-400 mr-3 text-xl";
-            } else {
-                icon.className = "fa-solid fa-info-circle text-blue-400 mr-3 text-xl";
-            }
-
-            notif.classList.remove('translate-y-20', 'opacity-0');
-            
-            setTimeout(() => {
-                notif.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        // --- STREAMING_CHUNK:Attendance Management ---
-        function renderAttendanceTable() {
-            const tbody = document.getElementById('attendance-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-
-            if (participants.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">No hay participantes registrados.</td></tr>';
-                return;
-            }
-
-            participants.forEach(p => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-200 hover:bg-gray-50 transition-colors";
-                
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-mono font-bold text-slate-600">${p.codigo || '-'}</td>
-                    <td class="px-6 py-4 font-medium text-gray-800">${p.name}</td>
-                    <td class="px-6 py-4 text-center">
-                        <input type="time" id="ingreso-${p.id}" value="${p.ingreso || ''}" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-orange-400 focus:border-orange-400 w-full max-w-[120px] mx-auto text-center font-mono">
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <input type="time" id="salida-${p.id}" value="${p.salida || ''}" class="border border-gray-300 rounded px-2 py-1 text-sm focus:ring-orange-400 focus:border-orange-400 w-full max-w-[120px] mx-auto text-center font-mono">
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                        <button onclick="saveAttendance('${p.id}')" class="bg-slate-700 hover:bg-slate-800 text-white px-3 py-1.5 rounded-md shadow transition-colors text-sm" title="Guardar Asistencia">
-                            <i class="fa-solid fa-save mr-1"></i> Guardar
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function saveAttendance(id) {
-            const index = participants.findIndex(p => p.id === id);
-            if (index > -1) {
-                participants[index].ingreso = document.getElementById(`ingreso-${id}`).value;
-                participants[index].salida = document.getElementById(`salida-${id}`).value;
-                saveToLocal();
-                showNotification("Asistencia guardada con éxito");
-            }
-        }
-
-        // --- STREAMING_CHUNK:Reports & Statistics ---
-        function updateStats() {
-            const total = participants.length;
-            document.getElementById('stat-total').textContent = total;
-
-            const counts = { 'prog1': 0, 'prog2': 0, 'prog3': 0 };
-            participants.forEach(p => {
-                if(counts[p.programId] !== undefined) counts[p.programId]++;
-            });
-
-            document.getElementById('stat-vencedores').textContent = counts['prog1'];
-            document.getElementById('stat-abrigo').textContent = counts['prog2'];
-            document.getElementById('stat-pacto').textContent = counts['prog3'];
-
-            // Update visual charts representation (Doughnut charts)
-            const chartsContainer = document.getElementById('stats-charts');
-            if(!chartsContainer) return;
-            chartsContainer.innerHTML = '';
-            
-            if (total === 0) {
-                chartsContainer.innerHTML = '<p class="text-sm text-gray-500 italic col-span-full text-center py-6">No hay datos suficientes para generar estadísticas.</p>';
-                return;
-            }
-
-            planData.forEach(p => {
-                const progParticipants = participants.filter(x => x.programId === p.id);
-                const totalProg = progParticipants.length;
-                const logrados = progParticipants.filter(x => x.logrado === 'Si').length;
-                const noLogrados = totalProg - logrados;
-                
-                let percentage = 0;
-                if(totalProg > 0) {
-                    percentage = Math.round((logrados / totalProg) * 100);
-                }
-                
-                // Colors matching the main table base colors
-                let colorBase = '#6b7280'; 
-                if(p.id === 'prog1') colorBase = '#2563eb'; // blue-600
-                if(p.id === 'prog2') colorBase = '#059669'; // emerald-600
-                if(p.id === 'prog3') colorBase = '#0f766e'; // teal-700
-
-                const chartHtml = `
-                    <div class="flex flex-col items-center justify-center p-5 bg-gray-50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                        <h5 class="text-sm font-bold text-gray-700 mb-5 text-center h-10 flex items-center">${p.intervencion}</h5>
-                        
-                        <div class="relative w-36 h-36 rounded-full shadow-inner mb-5" style="background: conic-gradient(${colorBase} ${percentage}%, #e5e7eb 0);">
-                            <div class="absolute inset-3 bg-white rounded-full flex flex-col items-center justify-center">
-                                <span class="text-3xl font-black text-gray-800">${percentage}%</span>
-                                <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">Logrado</span>
-                            </div>
-                        </div>
-                        
-                        <div class="w-full text-xs text-gray-600 mt-2 space-y-1.5">
-                            <div class="flex justify-between items-center bg-white px-3 py-1.5 border border-gray-200 rounded">
-                                <span class="flex items-center"><span class="inline-block w-2.5 h-2.5 rounded-full mr-2" style="background:${colorBase}"></span> Obtenido</span>
-                                <span class="font-bold text-gray-800">${logrados}</span>
-                            </div>
-                            <div class="flex justify-between items-center bg-white px-3 py-1.5 border border-gray-200 rounded">
-                                <span class="flex items-center"><span class="inline-block w-2.5 h-2.5 rounded-full mr-2 bg-gray-300"></span> No Obtenido</span>
-                                <span class="font-bold text-gray-800">${noLogrados}</span>
-                            </div>
-                            <div class="flex justify-between items-center px-3 py-1.5 mt-2 text-gray-500 border-t border-gray-200 pt-2">
-                                <span>Total Participantes:</span>
-                                <span class="font-bold">${totalProg}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                chartsContainer.innerHTML += chartHtml;
-            });
-        }
-    </script>
+  document.getElementById('rep-table').innerHTML = participants.map(p => {
+    const pl = planData.find(x => x.id === p.programId);
+    const nv = p.nivel === 'Alto' ? 'bg-green-100 text-green-800' : p.nivel === 'Medio' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+    return `<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="px-6 py-3 font-mono text-slate-500">${esc(p.codigo) || '-'}</td><td class="px-6 py-3 font-medium">${esc(p.name)}</td><td class="px-6 py-3">${pl ? pl.intervencion : '-'}</td>
+      <td class="px-6 py-3 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${nv}">${p.nivel}</span></td>
+      <td class="px-6 py-3 text-center">${p.logrado === 'Si' ? '<i class="fa-solid fa-circle-check text-green-600"></i>' : '<i class="fa-solid fa-circle-xmark text-red-400"></i>'}</td>
+      <td class="px-6 py-3 text-center">${p.ingreso ? '<i class="fa-solid fa-user-check text-green-600"></i>' : '<i class="fa-solid fa-user-xmark text-gray-300"></i>'}</td></tr>`;
+  }).join('');
+}
+</script>
 </body>
 </html>
